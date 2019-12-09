@@ -5,7 +5,9 @@ use std::path::Path;
 use intcode_computer::Machine;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let target_result = env::args().collect::<Vec<String>>()[1].trim().parse::<isize>()?;
+    let target_result = env::args().collect::<Vec<String>>()[1]
+        .trim()
+        .parse::<isize>()?;
 
     let path = Path::new("input2.txt");
     let initial_machine = Machine::from_path(path)?;

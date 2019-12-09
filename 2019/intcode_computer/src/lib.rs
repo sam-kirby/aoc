@@ -27,12 +27,8 @@ pub enum ExecutionState {
 impl Display for ExecutionState {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
-            ExecutionState::Running => {
-                write!(f, "running")
-            }
-            ExecutionState::Halted(reason) => {
-                write!(f, "halted due to {}", reason)
-            }
+            ExecutionState::Running => write!(f, "running"),
+            ExecutionState::Halted(reason) => write!(f, "halted due to {}", reason),
         }
     }
 }
@@ -75,8 +71,10 @@ impl Machine {
         let mut prog_string = String::new();
         file.read_to_string(&mut prog_string)?;
 
-        let initial_memory = prog_string.split(",")
-            .filter_map(|op_str| op_str.trim().parse::<isize>().ok()).collect::<Vec<isize>>();
+        let initial_memory = prog_string
+            .split(",")
+            .filter_map(|op_str| op_str.trim().parse::<isize>().ok())
+            .collect::<Vec<isize>>();
 
         Ok(Machine::new(initial_memory))
     }
@@ -110,11 +108,11 @@ impl Machine {
                 let output_addr = self.memory[self.inst_pointer + 3] as usize;
 
                 match op_code {
-                    1 => { self.memory[output_addr] = arg0 + arg1 }
-                    2 => { self.memory[output_addr] = arg0 * arg1 }
-                    7 => { self.memory[output_addr] = if arg0 < arg1 { 1 } else { 0 } }
-                    8 => { self.memory[output_addr] = if arg0 == arg1 { 1 } else { 0 } }
-                    _ => { unreachable!() }
+                    1 => self.memory[output_addr] = arg0 + arg1,
+                    2 => self.memory[output_addr] = arg0 * arg1,
+                    7 => self.memory[output_addr] = if arg0 < arg1 { 1 } else { 0 },
+                    8 => self.memory[output_addr] = if arg0 == arg1 { 1 } else { 0 },
+                    _ => unreachable!(),
                 }
 
                 self.inst_pointer += 4;
@@ -130,8 +128,13 @@ impl Machine {
                         let target_addr = self.memory[self.inst_pointer + 1] as usize;
                         self.memory[target_addr] = read!();
                     }
-                    4 => { println!("= {}", self.parse_argument(0, access_flags, self.inst_pointer + 1)); }
-                    _ => { unreachable!() }
+                    4 => {
+                        println!(
+                            "= {}",
+                            self.parse_argument(0, access_flags, self.inst_pointer + 1)
+                        );
+                    }
+                    _ => unreachable!(),
                 }
 
                 self.inst_pointer += 2;
@@ -149,11 +152,14 @@ impl Machine {
                     6 => {
                         flag = arg0 == 0;
                     }
-                    _ => { unreachable!(); }
+                    _ => {
+                        unreachable!();
+                    }
                 }
 
                 if flag {
-                    self.inst_pointer = self.parse_argument(1, access_flags, self.inst_pointer + 2) as usize;
+                    self.inst_pointer =
+                        self.parse_argument(1, access_flags, self.inst_pointer + 2) as usize;
                 } else {
                     self.inst_pointer += 3;
                 }
@@ -163,14 +169,18 @@ impl Machine {
     }
 
     fn parse_argument(&self, arg_number: usize, access_flag: usize, pointer: usize) -> isize {
-        let access_mode = if arg_number == 0 { access_flag % 10 } else { access_flag / (10 * arg_number) % 10 };
+        let access_mode = if arg_number == 0 {
+            access_flag % 10
+        } else {
+            access_flag / (10 * arg_number) % 10
+        };
 
         match access_mode {
             // Position mode
-            0 => { self.memory[self.memory[pointer] as usize] }
+            0 => self.memory[self.memory[pointer] as usize],
             // Immediate mode
-            1 => { self.memory[pointer] }
-            _ => { panic!("Unknown access mode specified") }
+            1 => self.memory[pointer],
+            _ => panic!("Unknown access mode specified"),
         }
     }
 

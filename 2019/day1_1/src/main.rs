@@ -11,9 +11,10 @@ fn main() -> Result<(), io::Error> {
         Err(why) => panic!("Couldn't read the input\n{}", why.description()),
     };
 
-    let total_fuel: usize = BufReader::new(file).lines()
-        .filter_map(| arg | arg.unwrap().parse::<usize>().ok())
-        .fold(0, | sum, mass | sum + mass / 3 - 2);
+    let total_fuel: usize = BufReader::new(file)
+        .lines()
+        .filter_map(|arg| arg.unwrap().parse::<usize>().ok())
+        .fold(0, |sum, mass| sum + mass / 3 - 2);
 
     println!("Fuel required is: {}", total_fuel);
 
