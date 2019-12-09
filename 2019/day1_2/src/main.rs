@@ -1,41 +1,32 @@
 use std::error::Error;
 use std::fs::File;
 use std::io;
-use std::io::{BufRead, BufReader};
+use std::io::{Read};
 use std::path::Path;
-
-fn fuel_required(mass: &isize) -> isize {
-    mass / 3 - 2
-}
 
 fn main() -> Result<(), io::Error> {
     let path = Path::new("input1.txt");
-    let file = match File::open(path) {
+    let mut file = match File::open(path) {
         Ok(file) => file,
-        Err(why) => panic!("Couldn't read the input\n{}", why.description()),
+        Err(why) => panic!("Couldn't read the input: {}", why.description()),
     };
+    let mut string_buffer = String::new();
+    file.read_to_string(&mut string_buffer).expect("Failed to read file!");
 
-    let lines = BufReader::new(file).lines();
-
-    let mut total_fuel: isize = 0;
-
-    for line in lines {
-        let mass = line?.parse::<isize>().unwrap();
-        let mut fuel_for_module = fuel_required(&mass);
-
-        let mut delta = fuel_for_module;
-        loop {
-            let fuel_for_fuel = fuel_required(&delta);
-            if fuel_for_fuel <= 0 {
-                break;
-            } else {
-                delta = fuel_for_fuel;
-                fuel_for_module += fuel_for_fuel;
+    let total_fuel: isize = string_buffer.lines()
+        .filter_map(| arg | arg.parse::<isize>().ok())
+        .fold(0, | mut sum, mut mass | {
+            loop {
+                let fuel_required = mass / 3 - 2;
+                if fuel_required > 0 {
+                    sum += fuel_required;
+                    mass = fuel_required;
+                } else {
+                    break;
+                }
             }
-        }
-
-        total_fuel += fuel_for_module;
-    }
+            sum
+        });
 
     println!("Total fuel required is: {}", total_fuel);
 

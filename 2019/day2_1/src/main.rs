@@ -17,7 +17,7 @@ fn main() -> Result<(), io::Error> {
     file.read_to_string(&mut prog_string)?;
 
     let prog_vec = prog_string.split(",")
-        .map(|op_str| op_str.trim().parse::<isize>().unwrap()).collect::<Vec<isize>>();
+        .filter_map(|op_str| op_str.trim().parse::<isize>().ok()).collect::<Vec<isize>>();
 
     let mut prog = Machine::new_with_noun_verb(prog_vec, 12, 2);
 
