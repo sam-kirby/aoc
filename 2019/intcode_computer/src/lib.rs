@@ -39,6 +39,14 @@ impl Display for ExecutionState {
 
 /// ## Machine
 /// An intcode computer
+/// ### Example
+/// ```
+/// use intcode_computer::Machine;
+///
+/// let mut machine = Machine::new(vec![1, 5, 6, 0, 99, 25, 17]);
+/// machine.execute();
+/// assert_eq!(42, machine.get_result());
+/// ```
 #[derive(Debug, Clone)]
 pub struct Machine {
     memory: Vec<isize>,
