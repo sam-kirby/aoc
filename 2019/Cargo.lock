@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "day5_1"
+name = "day5"
 version = "0.1.0"
 dependencies = [
  "intcode_computer 0.1.0",

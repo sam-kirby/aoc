@@ -7,7 +7,7 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::Path;
 
 use text_io::{read, try_read, try_scan};
@@ -28,10 +28,10 @@ impl Display for ExecutionState {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             ExecutionState::Running => {
-                write!(f, "Running")
+                write!(f, "running")
             }
             ExecutionState::Halted(reason) => {
-                write!(f, "Halted due to {}", reason)
+                write!(f, "halted due to {}", reason)
             }
         }
     }
@@ -39,7 +39,7 @@ impl Display for ExecutionState {
 
 /// ## Machine
 /// An intcode computer
-/// ### Example
+/// ### Examples
 /// ```
 /// use intcode_computer::Machine;
 ///
@@ -92,22 +92,28 @@ impl Machine {
             panic!("Tried to execute a program that had {}!", self.exec_state);
         }
 
-        let op_code = self.memory[self.inst_pointer];
+        let op_code = self.memory[self.inst_pointer] % 100;
+        let access_flags = (self.memory[self.inst_pointer] / 100) as usize;
 
         match op_code {
             // 99 terminates the program; there are no arguments
             99 => self.exec_state = ExecutionState::Halted(String::from("end of program")),
-            // 1 and 2 take 3 arguments; two input addresses and one output address
-            // 1 adds the contents of the two input addresses and stores the result at the output address
-            // 2 multiplies the contents of the two input addresses and stores the result at the output address
-            1 | 2 => {
-                let arg1_addr = self.memory[self.inst_pointer + 1] as usize;
-                let arg2_addr = self.memory[self.inst_pointer + 2] as usize;
+            // 1, 2, 7 and 8 take 3 arguments; two inputs and one output address
+            // 1 adds the contents of the two inputs and stores the result at the output address
+            // 2 multiplies the contents of the two inputs and stores the result at the output address
+            // 7 compares input 1 to input 2. If input 1 is less than input 2, 1 is stored in the output address else 0 is stored
+            // 8 compares input 1 to input 2. If they are equal, 1 is stored in the output address else 0 is stored
+            1 | 2 | 7 | 8 => {
+                let arg0 = self.parse_argument(0, access_flags, self.inst_pointer + 1);
+                let arg1 = self.parse_argument(1, access_flags, self.inst_pointer + 2);
+
                 let output_addr = self.memory[self.inst_pointer + 3] as usize;
 
                 match op_code {
-                    1 => { self.memory[output_addr] = self.memory[arg1_addr] + self.memory[arg2_addr]; }
-                    2 => { self.memory[output_addr] = self.memory[arg1_addr] * self.memory[arg2_addr]; }
+                    1 => { self.memory[output_addr] = arg0 + arg1 }
+                    2 => { self.memory[output_addr] = arg0 * arg1 }
+                    7 => { self.memory[output_addr] = if arg0 < arg1 { 1 } else { 0 } }
+                    8 => { self.memory[output_addr] = if arg0 == arg1 { 1 } else { 0 } }
                     _ => { unreachable!() }
                 }
 
@@ -115,19 +121,56 @@ impl Machine {
             }
             // 3 and 4 take 1 argument; a target address
             // 3 waits for user input and stores the input at the address specified
-            // 4 outputs the content of the address specified to stdout
+            // 4 outputs to stdout based on the value of its argument
             3 | 4 => {
-                let target_addr = self.memory[self.inst_pointer + 1] as usize;
-
                 match op_code {
-                    3 => { self.memory[target_addr] = read!() }
-                    4 => { println!("{}", self.memory[target_addr]); }
+                    3 => {
+                        print!("> ");
+                        std::io::stdout().flush().unwrap();
+                        let target_addr = self.memory[self.inst_pointer + 1] as usize;
+                        self.memory[target_addr] = read!();
+                    }
+                    4 => { println!("= {}", self.parse_argument(0, access_flags, self.inst_pointer + 1)); }
                     _ => { unreachable!() }
                 }
 
                 self.inst_pointer += 2;
             }
+            // 5 and 6 take 2 arguments; both are inputs
+            // 5 checks if the first input is not 0. If this is true, it jumps to the location specified by the second input
+            // 6 checks if the first input is 0. If this is true, it jumps to the location specified by the second input
+            5 | 6 => {
+                let arg0 = self.parse_argument(0, access_flags, self.inst_pointer + 1);
+                let flag: bool;
+                match op_code {
+                    5 => {
+                        flag = arg0 != 0;
+                    }
+                    6 => {
+                        flag = arg0 == 0;
+                    }
+                    _ => { unreachable!(); }
+                }
+
+                if flag {
+                    self.inst_pointer = self.parse_argument(1, access_flags, self.inst_pointer + 2) as usize;
+                } else {
+                    self.inst_pointer += 3;
+                }
+            }
             _ => self.exec_state = ExecutionState::Halted(String::from("unknown opcode")),
+        }
+    }
+
+    fn parse_argument(&self, arg_number: usize, access_flag: usize, pointer: usize) -> isize {
+        let access_mode = if arg_number == 0 { access_flag % 10 } else { access_flag / (10 * arg_number) % 10 };
+
+        match access_mode {
+            // Position mode
+            0 => { self.memory[self.memory[pointer] as usize] }
+            // Immediate mode
+            1 => { self.memory[pointer] }
+            _ => { panic!("Unknown access mode specified") }
         }
     }
 
@@ -145,7 +188,7 @@ impl Machine {
         }
     }
 
-    /// Get the current execution state of the machine
+    /// Get the current `ExecutionState` of the machine
     pub fn get_exec_state(&self) -> &ExecutionState {
         &self.exec_state
     }
