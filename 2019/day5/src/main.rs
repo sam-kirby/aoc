@@ -1,7 +1,7 @@
 use std::error::Error;
+use std::path::Path;
 
 use intcode_computer::Machine;
-use std::path::Path;
 
 // Input 1 for part 1, 5 for part 2
 fn main() -> Result<(), Box<dyn Error>> {

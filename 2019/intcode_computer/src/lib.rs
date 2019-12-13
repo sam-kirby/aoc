@@ -102,8 +102,8 @@ impl Machine {
             // 7 compares input 1 to input 2. If input 1 is less than input 2, 1 is stored in the output address else 0 is stored
             // 8 compares input 1 to input 2. If they are equal, 1 is stored in the output address else 0 is stored
             1 | 2 | 7 | 8 => {
-                let arg0 = self.parse_argument(0, access_flags, self.inst_pointer + 1);
-                let arg1 = self.parse_argument(1, access_flags, self.inst_pointer + 2);
+                let arg0 = self.parse_argument(0, access_flags);
+                let arg1 = self.parse_argument(1, access_flags);
 
                 let output_addr = self.memory[self.inst_pointer + 3] as usize;
 
@@ -129,10 +129,7 @@ impl Machine {
                         self.memory[target_addr] = read!();
                     }
                     4 => {
-                        println!(
-                            "= {}",
-                            self.parse_argument(0, access_flags, self.inst_pointer + 1)
-                        );
+                        println!("= {}", self.parse_argument(0, access_flags));
                     }
                     _ => unreachable!(),
                 }
@@ -143,7 +140,7 @@ impl Machine {
             // 5 checks if the first input is not 0. If this is true, it jumps to the location specified by the second input
             // 6 checks if the first input is 0. If this is true, it jumps to the location specified by the second input
             5 | 6 => {
-                let arg0 = self.parse_argument(0, access_flags, self.inst_pointer + 1);
+                let arg0 = self.parse_argument(0, access_flags);
                 let flag: bool;
                 match op_code {
                     5 => {
@@ -158,8 +155,7 @@ impl Machine {
                 }
 
                 if flag {
-                    self.inst_pointer =
-                        self.parse_argument(1, access_flags, self.inst_pointer + 2) as usize;
+                    self.inst_pointer = self.parse_argument(1, access_flags) as usize;
                 } else {
                     self.inst_pointer += 3;
                 }
@@ -168,12 +164,14 @@ impl Machine {
         }
     }
 
-    fn parse_argument(&self, arg_number: usize, access_flag: usize, pointer: usize) -> isize {
+    fn parse_argument(&self, arg_number: usize, access_flag: usize) -> isize {
         let access_mode = if arg_number == 0 {
             access_flag % 10
         } else {
             access_flag / (10 * arg_number) % 10
         };
+
+        let pointer = self.inst_pointer + arg_number + 1;
 
         match access_mode {
             // Position mode
