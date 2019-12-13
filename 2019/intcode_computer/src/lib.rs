@@ -72,7 +72,7 @@ impl Machine {
         file.read_to_string(&mut prog_string)?;
 
         let initial_memory = prog_string
-            .split(",")
+            .split(',')
             .filter_map(|op_str| op_str.trim().parse::<isize>().ok())
             .collect::<Vec<isize>>();
 
@@ -95,7 +95,10 @@ impl Machine {
 
         match op_code {
             // 99 terminates the program; there are no arguments
-            99 => self.exec_state = ExecutionState::Halted(String::from("end of program")),
+            99 => {
+                self.exec_state = ExecutionState::Halted(String::from("end of program"));
+                self.inst_pointer += 1;
+            }
             // 1, 2, 7 and 8 take 3 arguments; two inputs and one output address
             // 1 adds the contents of the two inputs and stores the result at the output address
             // 2 multiplies the contents of the two inputs and stores the result at the output address
@@ -107,13 +110,13 @@ impl Machine {
 
                 let output_addr = self.memory[self.inst_pointer + 3] as usize;
 
-                match op_code {
-                    1 => self.memory[output_addr] = arg0 + arg1,
-                    2 => self.memory[output_addr] = arg0 * arg1,
-                    7 => self.memory[output_addr] = if arg0 < arg1 { 1 } else { 0 },
-                    8 => self.memory[output_addr] = if arg0 == arg1 { 1 } else { 0 },
+                self.memory[output_addr] = match op_code {
+                    1 => arg0 + arg1,
+                    2 => arg0 * arg1,
+                    7 => if arg0 < arg1 { 1 } else { 0 },
+                    8 => if arg0 == arg1 { 1 } else { 0 },
                     _ => unreachable!(),
-                }
+                };
 
                 self.inst_pointer += 4;
             }
@@ -141,20 +144,13 @@ impl Machine {
             // 6 checks if the first input is 0. If this is true, it jumps to the location specified by the second input
             5 | 6 => {
                 let arg0 = self.parse_argument(0, access_flags);
-                let flag: bool;
-                match op_code {
-                    5 => {
-                        flag = arg0 != 0;
-                    }
-                    6 => {
-                        flag = arg0 == 0;
-                    }
-                    _ => {
-                        unreachable!();
-                    }
-                }
+                let do_jump = match op_code {
+                    5 => arg0 != 0,
+                    6 => arg0 == 0,
+                    _ => unreachable!(),
+                };
 
-                if flag {
+                if do_jump {
                     self.inst_pointer = self.parse_argument(1, access_flags) as usize;
                 } else {
                     self.inst_pointer += 3;
@@ -187,11 +183,8 @@ impl Machine {
         loop {
             self.step();
 
-            match self.exec_state {
-                ExecutionState::Halted(_) => {
-                    break;
-                }
-                _ => {}
+            if let ExecutionState::Halted(_) = self.exec_state {
+                break;
             }
         }
     }

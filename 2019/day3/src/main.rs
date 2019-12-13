@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut snakes = string_buffer
         .lines()
         .map(|line| {
-            line.split(",").fold(
+            line.split(',').fold(
                 Snake {
                     line_segments: vec![],
                     current_pos: (0, 0),
