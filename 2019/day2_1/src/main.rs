@@ -8,7 +8,10 @@ fn main() -> Result<(), io::Error> {
 
     let mut machine = Machine::from_path(path)?;
     machine.set_noun_verb(12, 2);
-    machine.execute();
+
+    let input_fn = || 0isize;
+    let output_fn = |_out| {};
+    machine.execute(&input_fn, &output_fn);
 
     println!("Position 0 contains: {}", machine.get_result());
 

@@ -35,6 +35,7 @@ name = "day5"
 version = "0.1.0"
 dependencies = [
  "intcode_computer 0.1.0",
+ "text_io 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -44,9 +45,6 @@ version = "0.1.0"
 [[package]]
 name = "intcode_computer"
 version = "0.1.0"
-dependencies = [
- "text_io 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
-]
 
 [[package]]
 name = "text_io"

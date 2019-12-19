@@ -17,7 +17,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             let mut machine = initial_machine.clone();
             machine.set_noun_verb(noun, verb);
 
-            machine.execute();
+            let input_fn = || 0isize;
+            let output_fn = |_out| {};
+            machine.execute(&input_fn, &output_fn);
 
             if machine.get_result() == target_result {
                 println!("Got result: {}", machine.get_result());

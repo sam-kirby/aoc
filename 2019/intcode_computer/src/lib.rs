@@ -7,10 +7,8 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io;
-use std::io::{Read, Write};
+use std::io::Read;
 use std::path::Path;
-
-use text_io::{read, try_read, try_scan};
 
 /// ## ExecutionState
 /// The possible states the computer can be in
@@ -40,7 +38,9 @@ impl Display for ExecutionState {
 /// use intcode_computer::Machine;
 ///
 /// let mut machine = Machine::new(vec![1, 5, 6, 0, 99, 25, 17]);
-/// machine.execute();
+/// let input_fn = || 0isize;
+/// let output_fn = |_out| {};
+/// machine.execute(&input_fn, &output_fn);
 /// assert_eq!(42, machine.get_result());
 /// ```
 #[derive(Debug, Clone)]
@@ -85,7 +85,7 @@ impl Machine {
         self.memory[2] = verb;
     }
 
-    fn step(&mut self) {
+    fn step(&mut self, input_fn: &dyn Fn() -> isize, output_fn: &dyn Fn(isize)) {
         if self.exec_state != ExecutionState::Running {
             panic!("Tried to execute a program that had {}!", self.exec_state);
         }
@@ -113,8 +113,20 @@ impl Machine {
                 self.memory[output_addr] = match op_code {
                     1 => arg0 + arg1,
                     2 => arg0 * arg1,
-                    7 => if arg0 < arg1 { 1 } else { 0 },
-                    8 => if arg0 == arg1 { 1 } else { 0 },
+                    7 => {
+                        if arg0 < arg1 {
+                            1
+                        } else {
+                            0
+                        }
+                    }
+                    8 => {
+                        if arg0 == arg1 {
+                            1
+                        } else {
+                            0
+                        }
+                    }
                     _ => unreachable!(),
                 };
 
@@ -126,13 +138,11 @@ impl Machine {
             3 | 4 => {
                 match op_code {
                     3 => {
-                        print!("> ");
-                        std::io::stdout().flush().unwrap();
                         let target_addr = self.memory[self.inst_pointer + 1] as usize;
-                        self.memory[target_addr] = read!();
+                        self.memory[target_addr] = input_fn();
                     }
                     4 => {
-                        println!("= {}", self.parse_argument(0, access_flags));
+                        output_fn(self.parse_argument(0, access_flags));
                     }
                     _ => unreachable!(),
                 }
@@ -160,6 +170,17 @@ impl Machine {
         }
     }
 
+    //    fn step_with_default_io(&mut self) {
+    //        self.step(
+    //            &|| {
+    //                print!("> ");
+    //                std::io::stdout().flush().unwrap();
+    //                read!()
+    //            },
+    //            &|out| println!("= {}", out),
+    //        );
+    //    }
+
     fn parse_argument(&self, arg_number: usize, access_flag: usize) -> isize {
         let access_mode = if arg_number == 0 {
             access_flag % 10
@@ -179,9 +200,9 @@ impl Machine {
     }
 
     /// Execute the program in memory
-    pub fn execute(&mut self) {
+    pub fn execute(&mut self, input_fn: &dyn Fn() -> isize, output_fn: &dyn Fn(isize)) {
         loop {
-            self.step();
+            self.step(&input_fn, &output_fn);
 
             if let ExecutionState::Halted(_) = self.exec_state {
                 break;
