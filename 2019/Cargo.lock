@@ -38,6 +38,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "day6"
+version = "0.1.0"
+
+[[package]]
 name = "intcode_computer"
 version = "0.1.0"
 dependencies = [
