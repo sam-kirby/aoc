@@ -158,16 +158,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let list_ancestors = |node: Rc<RefCell<Body>>| {
         let mut list = Vec::new();
         let mut parent_opt = node.borrow().parent();
-        loop {
-            match parent_opt {
-                Some(parent) => {
-                    list.push(parent.borrow().body_id.clone());
-                    parent_opt = parent.borrow().parent()
-                }
-                None => {
-                    break;
-                }
-            }
+        while let Some(parent) = parent_opt {
+            list.push(parent.borrow().body_id.clone());
+            parent_opt = parent.borrow().parent();
         }
         list.reverse();
         list
