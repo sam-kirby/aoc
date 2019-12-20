@@ -9,11 +9,11 @@ fn main() -> Result<(), io::Error> {
     let mut machine = Machine::from_path(path)?;
     machine.set_noun_verb(12, 2);
 
-    let input_fn = || 0isize;
-    let output_fn = |_out| {};
-    machine.execute(&input_fn, &output_fn);
+    let mut input_fn = || 0isize;
+    let mut output_fn = |_out| {};
+    machine.execute(&mut input_fn, &mut output_fn);
 
-    println!("Position 0 contains: {}", machine.get_result());
+    println!("Position 0 contains: {}", machine.result());
 
     Ok(())
 }

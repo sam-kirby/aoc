@@ -17,12 +17,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             let mut machine = initial_machine.clone();
             machine.set_noun_verb(noun, verb);
 
-            let input_fn = || 0isize;
-            let output_fn = |_out| {};
-            machine.execute(&input_fn, &output_fn);
+            let mut input_fn = || 0isize;
+            let mut output_fn = |_out| {};
+            machine.execute(&mut input_fn, &mut output_fn);
 
-            if machine.get_result() == target_result {
-                println!("Got result: {}", machine.get_result());
+            if machine.result() == target_result {
+                println!("Got result: {}", machine.result());
                 println!("Noun: {}, Verb: {}", noun, verb);
                 println!("Code: {}", 100 * noun + verb);
                 break 'outer;

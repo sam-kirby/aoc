@@ -38,10 +38,10 @@ impl Display for ExecutionState {
 /// use intcode_computer::Machine;
 ///
 /// let mut machine = Machine::new(vec![1, 5, 6, 0, 99, 25, 17]);
-/// let input_fn = || 0isize;
-/// let output_fn = |_out| {};
-/// machine.execute(&input_fn, &output_fn);
-/// assert_eq!(42, machine.get_result());
+/// let mut input_fn = || 0isize;
+/// let mut output_fn = |_out| {};
+/// machine.execute(&mut input_fn, &mut output_fn);
+/// assert_eq!(42, machine.result());
 /// ```
 #[derive(Debug, Clone)]
 pub struct Machine {
@@ -85,7 +85,11 @@ impl Machine {
         self.memory[2] = verb;
     }
 
-    fn step(&mut self, input_fn: &dyn Fn() -> isize, output_fn: &dyn Fn(isize)) {
+    fn step<F, G>(&mut self, input_fn: &mut F, output_fn: &mut G)
+    where
+        F: FnMut() -> isize,
+        G: FnMut(isize),
+    {
         if self.exec_state != ExecutionState::Running {
             panic!("Tried to execute a program that had {}!", self.exec_state);
         }
@@ -170,17 +174,6 @@ impl Machine {
         }
     }
 
-    //    fn step_with_default_io(&mut self) {
-    //        self.step(
-    //            &|| {
-    //                print!("> ");
-    //                std::io::stdout().flush().unwrap();
-    //                read!()
-    //            },
-    //            &|out| println!("= {}", out),
-    //        );
-    //    }
-
     fn parse_argument(&self, arg_number: usize, access_flag: usize) -> isize {
         let access_mode = if arg_number == 0 {
             access_flag % 10
@@ -200,9 +193,13 @@ impl Machine {
     }
 
     /// Execute the program in memory
-    pub fn execute(&mut self, input_fn: &dyn Fn() -> isize, output_fn: &dyn Fn(isize)) {
+    pub fn execute<F, G>(&mut self, input_fn: &mut F, output_fn: &mut G)
+    where
+        F: FnMut() -> isize,
+        G: FnMut(isize),
+    {
         loop {
-            self.step(&input_fn, &output_fn);
+            self.step(input_fn, output_fn);
 
             if let ExecutionState::Halted(_) = self.exec_state {
                 break;
@@ -211,12 +208,12 @@ impl Machine {
     }
 
     /// Get the current `ExecutionState` of the machine
-    pub fn get_exec_state(&self) -> &ExecutionState {
+    pub fn exec_state(&self) -> &ExecutionState {
         &self.exec_state
     }
 
     /// Get the result of the program (memory location 0)
-    pub fn get_result(&self) -> isize {
+    pub fn result(&self) -> isize {
         self.memory[0]
     }
 }

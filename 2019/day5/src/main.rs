@@ -10,13 +10,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let path = Path::new("input5.txt");
     let mut machine = Machine::from_path(path)?;
 
-    let input_fn = || {
+    let mut input_fn = || {
         print!("> ");
         std::io::stdout().flush().unwrap();
         read!()
     };
-    let output_fn = |out| println!("= {}", out);
-    machine.execute(&input_fn, &output_fn);
+    let mut output_fn = |out| println!("= {}", out);
+    machine.execute(&mut input_fn, &mut output_fn);
 
     Ok(())
 }
