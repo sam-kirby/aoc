@@ -3,4 +3,5 @@
 members = [
     "aoc-lib",
     "aoc-1",
+    "aoc-2",
 ]
