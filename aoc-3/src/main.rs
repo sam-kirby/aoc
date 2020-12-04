@@ -8,7 +8,7 @@ use std::{
 #[derive(Clone, Debug)]
 struct Map {
     width: usize,
-    terrain: Vec<u8>,
+    terrain: Vec<bool>,
 }
 
 impl Map {
@@ -25,7 +25,7 @@ impl Map {
             if width.is_none() {
                 width = Some(line.len());
             }
-            terrain.extend(line.as_bytes());
+            terrain.extend(line.as_bytes().iter().map(|&b| b == b'#'));
         }
 
         Ok(Map {
@@ -34,7 +34,7 @@ impl Map {
         })
     }
 
-    fn get(&self, x: usize, y: usize) -> Option<&u8> {
+    fn get(&self, x: usize, y: usize) -> Option<&bool> {
         let idx = self.width * y + x % self.width;
 
         self.terrain.get(idx)
@@ -45,7 +45,7 @@ impl Map {
         let mut trees = 0;
 
         while let Some(&pos) = self.get(x, y) {
-            if pos == b'#' {
+            if pos {
                 trees += 1
             }
             x += dx;
@@ -56,16 +56,7 @@ impl Map {
 }
 
 fn solve1(map: &Map) -> usize {
-    let (mut x, mut y) = (0, 0);
-    let mut trees: usize = 0;
-    while let Some(&pos) = map.get(x, y) {
-        if pos == b'#' {
-            trees += 1
-        }
-        x += 3;
-        y += 1;
-    }
-    trees
+    map.trees_on_path(3, 1)
 }
 
 fn solve2(map: &Map) -> usize {
