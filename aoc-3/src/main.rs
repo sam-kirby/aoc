@@ -59,12 +59,13 @@ fn solve1(map: &Map) -> usize {
     map.trees_on_path(3, 1)
 }
 
-fn solve2(map: &Map) -> usize {
+fn solve2(map: &Map) -> (usize, usize) {
     let rules: [(usize, usize); 5] = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
-    rules
+    let routes = rules
         .iter()
         .map(|&(x, y)| map.trees_on_path(x, y))
-        .product()
+        .collect::<Vec<_>>();
+    (routes.iter().product(), *routes.iter().min().unwrap())
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
@@ -73,11 +74,12 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
     let trees = solve1(&map);
     println!("You only hit {} trees", trees);
 
-    let trees = solve2(&map);
+    let (prod, min) = solve2(&map);
     println!(
         "The product of all the trees on the possible routes is {} trees²",
-        trees
+        prod
     );
+    println!("The best route only involves hititng {} trees", min);
 
     Ok(())
 }
@@ -95,6 +97,6 @@ mod tests {
     #[test]
     fn test2() {
         let map = Map::from_file("test.txt").unwrap();
-        assert_eq!(solve2(&map), 336);
+        assert_eq!(solve2(&map).0, 336);
     }
 }
