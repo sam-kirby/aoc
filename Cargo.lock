@@ -31,6 +31,15 @@ name = "aoc-3"
 version = "0.1.0"
 
 [[package]]
+name = "aoc-4"
+version = "0.1.0"
+dependencies = [
+ "aoc-lib",
+ "lazy_static",
+ "regex",
+]
+
+[[package]]
 name = "aoc-lib"
 version = "0.1.0"
 
