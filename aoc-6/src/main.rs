@@ -28,7 +28,7 @@ fn solve2(answers: &Vec<String>) -> usize {
                         set.push(c);
                     }
                 } else {
-                    set = set.into_iter().partition::<Vec<_>, _>(|&c| e.contains(c)).0;
+                    set = set.into_iter().partition(|&c| e.contains(c)).0;
                 }
 
                 if set.is_empty() {
