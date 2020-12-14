@@ -102,7 +102,7 @@ impl<'a, I: Iterator<Item = String>> Iterator for SplitBlankLineIterator<'a, I> 
 
     fn next(&mut self) -> Option<Self::Item> {
         let replace_newline = &self.replace_newline;
-        let out = self
+        let mut out = self
             .iter
             .by_ref()
             .take_while(|s| s != "") // Note: consumes blank line
@@ -113,6 +113,9 @@ impl<'a, I: Iterator<Item = String>> Iterator for SplitBlankLineIterator<'a, I> 
                 }
                 s
             });
+        if let Some(replacement) = replace_newline.as_deref() {
+            out = out.trim_end_matches(replacement).to_owned();
+        }
         if !out.is_empty() {
             Some(out)
         } else {
