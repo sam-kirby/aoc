@@ -22,3 +22,21 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{count_valid, SledPassword, TobogganPassword};
+    use aoc_lib::load_simple_input;
+
+    #[test]
+    fn test1() {
+        let inputs: Vec<SledPassword> = load_simple_input("test.txt").unwrap();
+        assert_eq!(count_valid(inputs), 2);
+    }
+
+    #[test]
+    fn test2() {
+        let inputs: Vec<TobogganPassword> = load_simple_input("test.txt").unwrap();
+        assert_eq!(count_valid(inputs), 1);
+    }
+}

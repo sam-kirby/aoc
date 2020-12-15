@@ -32,14 +32,15 @@ mod tests {
 
     #[test]
     fn test1() {
-        let passports: Vec<Result<Passport, _>> = load_split_input("test.txt", Some(" ")).unwrap();
+        let passports: Vec<Result<Passport, _>> =
+            load_split_input("tests/test.txt", Some(" ")).unwrap();
         assert_eq!(passports.iter().filter_map(|r| r.as_ref().ok()).count(), 2);
     }
 
     #[test]
     fn test_enhanced_valid() {
         let passports: Vec<Result<Passport, _>> =
-            load_split_input("test_enhanced_valid.txt", Some(" ")).unwrap();
+            load_split_input("tests/test_enhanced_valid.txt", Some(" ")).unwrap();
         assert_eq!(
             passports
                 .iter()
@@ -53,7 +54,7 @@ mod tests {
     #[test]
     fn test_enhanced_invalid() {
         let passports: Vec<Result<Passport, _>> =
-            load_split_input("test_enhanced_invalid.txt", Some(" ")).unwrap();
+            load_split_input("tests/test_enhanced_invalid.txt", Some(" ")).unwrap();
         assert_eq!(
             passports
                 .iter()

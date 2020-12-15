@@ -66,7 +66,7 @@ mod tests {
     fn parse() {
         let example = "1-5 c: ffffff";
         let pass = SledPassword::from_str(example).unwrap();
-        assert_eq!(pass.range, std::ops::RangeInclusive::new(1, 5));
+        assert_eq!(pass.range, (1..=5));
         assert_eq!(pass.char, 'c');
         assert_eq!(pass.pass, "ffffff".to_string());
     }
