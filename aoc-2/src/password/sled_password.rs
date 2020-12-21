@@ -6,7 +6,7 @@ use std::{
 
 use crate::password::{ParsePassErr, Password};
 
-use regex::Regex;
+use aoc_lib::regex;
 
 pub(crate) struct SledPassword {
     range: RangeInclusive<usize>,
@@ -37,11 +37,11 @@ impl FromStr for SledPassword {
     type Err = ParsePassErr;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        lazy_static::lazy_static! {
-            static ref RE: Regex = Regex::new(r"^(?P<lower_bound>\d+)-(?P<upper_bound>\d+) (?P<char>[a-z]): (?P<pass>[a-z]+)$").unwrap();
-        }
+        let re = regex!(
+            r"^(?P<lower_bound>\d+)-(?P<upper_bound>\d+) (?P<char>[a-z]): (?P<pass>[a-z]+)$"
+        );
 
-        let caps = match RE.captures(s) {
+        let caps = match re.captures(s) {
             Some(caps) => caps,
             None => return Err(ParsePassErr),
         };

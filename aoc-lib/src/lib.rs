@@ -8,6 +8,8 @@ use std::{
     str::FromStr,
 };
 
+mod macros;
+
 #[derive(Debug)]
 pub enum LoadError {
     FileOpenError { path: String },

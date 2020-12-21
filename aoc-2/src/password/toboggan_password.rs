@@ -3,7 +3,7 @@ use std::{
     str::FromStr,
 };
 
-use regex::Regex;
+use aoc_lib::regex;
 
 use crate::password::{ParsePassErr, Password};
 
@@ -43,11 +43,9 @@ impl FromStr for TobogganPassword {
     type Err = ParsePassErr;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        lazy_static::lazy_static! {
-            static ref RE: Regex = Regex::new(r"^(?P<idx_1>\d+)-(?P<idx_2>\d+) (?P<char>[a-z]): (?P<pass>[a-z]+)$").unwrap();
-        }
+        let re = regex!(r"^(?P<idx_1>\d+)-(?P<idx_2>\d+) (?P<char>[a-z]): (?P<pass>[a-z]+)$");
 
-        let caps = match RE.captures(s) {
+        let caps = match re.captures(s) {
             Some(caps) => caps,
             None => return Err(ParsePassErr),
         };

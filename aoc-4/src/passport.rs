@@ -5,7 +5,7 @@ use std::{
     str::FromStr,
 };
 
-use regex::Regex;
+use aoc_lib::regex;
 
 #[derive(Debug)]
 pub struct Passport {
@@ -47,11 +47,9 @@ impl Passport {
             Height::UndefinedUnit => return false,
         }
 
-        lazy_static::lazy_static! {
-            static ref RE: Regex = Regex::new(r"^#[0-9a-f]{6}").unwrap();
-        }
+        let re = regex!(r"^#[0-9a-f]{6}");
 
-        if !RE.is_match(&self.hair_colour) {
+        if !re.is_match(&self.hair_colour) {
             return false;
         }
 
