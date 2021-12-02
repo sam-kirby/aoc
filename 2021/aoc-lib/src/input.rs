@@ -8,6 +8,8 @@ use std::{
 
 use thiserror::Error;
 
+use crate::motion::MotionParseError;
+
 #[derive(Debug, Error)]
 pub enum ProblemInputError {
     #[error("Could not open the input \"{path}\"")]
@@ -18,7 +20,13 @@ pub enum ProblemInputError {
 
 impl From<ParseIntError> for ProblemInputError {
     fn from(e: ParseIntError) -> Self {
-        ProblemInputError::Parse{ source: e.into() }
+        ProblemInputError::Parse { source: e.into() }
+    }
+}
+
+impl From<MotionParseError> for ProblemInputError {
+    fn from(e: MotionParseError) -> Self {
+        ProblemInputError::Parse { source: e.into() }
     }
 }
 
