@@ -11,13 +11,16 @@ fn solve_part1(input: &[u32]) -> usize {
 }
 
 fn solve_part2(input: &[u32]) -> usize {
-    input.windows(3).fold((0, None), |(mut t, p), c| {
-        let s: u32 = c.iter().sum();
-        if matches!(p, Some(p) if s > p) {
-            t += 1;
-        }
-        (t, Some(s))
-    }).0
+    input
+        .windows(3)
+        .fold((0, None), |(mut t, p), c| {
+            let s: u32 = c.iter().sum();
+            if matches!(p, Some(p) if s > p) {
+                t += 1;
+            }
+            (t, Some(s))
+        })
+        .0
 }
 
 fn main() -> anyhow::Result<()> {
@@ -31,17 +34,21 @@ fn main() -> anyhow::Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use aoc_lib::input::parse_test_input;
+
     use super::{solve_part1, solve_part2};
 
-    const INPUT: [u32; 10] = [199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
+    const INPUT: &'static str = include_str!("test.txt");
 
     #[test]
     fn test_part1() {
-        assert_eq!(solve_part1(&INPUT), 7);
+        let input: Vec<u32> = parse_test_input(INPUT);
+        assert_eq!(solve_part1(&input), 7);
     }
 
     #[test]
     fn test_part2() {
-        assert_eq!(solve_part2(&INPUT), 5);
+        let input: Vec<u32> = parse_test_input(INPUT);
+        assert_eq!(solve_part2(&input), 5);
     }
 }

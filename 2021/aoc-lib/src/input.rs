@@ -1,8 +1,9 @@
 use std::{
     fs::File,
     io::{self, BufRead, BufReader},
+    num::ParseIntError,
     path::Path,
-    str::FromStr, num::ParseIntError,
+    str::FromStr,
 };
 
 use thiserror::Error;
@@ -40,4 +41,21 @@ where
         .map(|l| l.parse())
         .collect::<Result<C, E>>()
         .map_err(|e| e.into())
+}
+
+pub fn parse_test_input<C, T, E>(input: &'static str) -> C
+where
+    C: FromIterator<T>,
+    T: FromStr<Err = E>,
+    E: Into<ProblemInputError>,
+{
+    match input
+        .lines()
+        .map(|l| l.parse())
+        .collect::<Result<C, E>>()
+        .map_err(|e| e.into())
+    {
+        Ok(c) => c,
+        Err(e) => panic!("Parsing test input failed: {}", e),
+    }
 }
