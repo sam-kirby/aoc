@@ -2,6 +2,7 @@ use std::{
     fs::File,
     io::{self, BufRead, BufReader},
     num::ParseIntError,
+    ops::Deref,
     path::Path,
     str::FromStr,
 };
@@ -27,6 +28,31 @@ impl From<ParseIntError> for ProblemInputError {
 impl From<MotionParseError> for ProblemInputError {
     fn from(e: MotionParseError) -> Self {
         ProblemInputError::Parse { source: e.into() }
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct BinaryEncodedInt(u16);
+
+impl std::fmt::Debug for BinaryEncodedInt {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:b}", self.0)
+    }
+}
+
+impl Deref for BinaryEncodedInt {
+    type Target = u16;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl FromStr for BinaryEncodedInt {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        u16::from_str_radix(s, 2).map(BinaryEncodedInt)
     }
 }
 

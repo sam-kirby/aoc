@@ -37,7 +37,7 @@ fn main() -> anyhow::Result<()> {
 mod tests {
     use aoc_lib::{input::parse_test_input, motion::MotionVec};
 
-    use crate::{solve_part1, solve_part2};
+    use super::{solve_part1, solve_part2};
 
     const TEST_INPUT: &'static str = include_str!("test.txt");
 
