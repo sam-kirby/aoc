@@ -103,17 +103,7 @@ impl Debug for Table {
 
 impl Display for Table {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for i in (0..25)
-            .filter_map(|i| self.data.get_by_left(&i))
-            .collect::<Vec<_>>()
-            .chunks(5)
-        {
-            if let Err(e) = writeln!(f, "{} {} {} {} {}", i[0], i[1], i[2], i[3], i[4]) {
-                return Err(e);
-            }
-        }
-
-        Ok(())
+        write!(f, "{:?}", self)
     }
 }
 
