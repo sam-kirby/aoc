@@ -15,12 +15,12 @@ impl School {
     }
 }
 
-impl FromIterator<u64> for School {
-    fn from_iter<I: IntoIterator<Item = u64>>(iter: I) -> Self {
+impl FromIterator<usize> for School {
+    fn from_iter<I: IntoIterator<Item = usize>>(iter: I) -> Self {
         let mut fish = [0; 9];
         for age in iter {
             match age {
-                a @ 0..=8 => fish[a as usize] += 1,
+                a @ 0..=8 => fish[a] += 1,
                 a => panic!("Unexpected age: {} out of lifecylce", a),
             }
         }
