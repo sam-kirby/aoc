@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    io::{self, BufRead, BufReader},
+    io::{self, BufRead, BufReader, Read},
     num::ParseIntError,
     ops::Deref,
     path::Path,
@@ -15,6 +15,8 @@ use crate::motion::MotionParseError;
 pub enum ProblemInputError {
     #[error("Could not open the input \"{path}\"")]
     InputOpen { path: String, source: io::Error },
+    #[error("Error while reading the input")]
+    Read { source: io::Error },
     #[error("Failed to parse input file")]
     Parse { source: anyhow::Error },
 }
@@ -77,6 +79,28 @@ where
         .map_err(|e| e.into())
 }
 
+pub fn load_comma_sep_input<C, T, E>(path: impl AsRef<Path>) -> Result<C, ProblemInputError>
+where
+    C: FromIterator<T>,
+    T: FromStr<Err = E>,
+    E: Into<ProblemInputError>,
+{
+    let path = path.as_ref();
+
+    let mut file = File::open(path).map_err(|e| ProblemInputError::InputOpen {
+        path: path.display().to_string(),
+        source: e,
+    })?;
+    let mut buf = String::new();
+    file.read_to_string(&mut buf)
+        .map_err(|e| ProblemInputError::Read { source: e })?;
+
+    buf.trim().split(',')
+        .map(|v| v.parse())
+        .collect::<Result<C, E>>()
+        .map_err(|e| e.into())
+}
+
 pub fn parse_test_input<C, T, E>(input: &'static str) -> C
 where
     C: FromIterator<T>,
@@ -86,6 +110,23 @@ where
     match input
         .lines()
         .map(|l| l.parse())
+        .collect::<Result<C, E>>()
+        .map_err(|e| e.into())
+    {
+        Ok(c) => c,
+        Err(e) => panic!("Parsing test input failed: {}", e),
+    }
+}
+
+pub fn parse_comma_sep_test<C, T, E>(input: &'static str) -> C
+where
+    C: FromIterator<T>,
+    T: FromStr<Err = E>,
+    E: Into<ProblemInputError>,
+{
+    match input
+        .split(',')
+        .map(|v| v.parse())
         .collect::<Result<C, E>>()
         .map_err(|e| e.into())
     {
