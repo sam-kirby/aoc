@@ -7,7 +7,7 @@ fn solve_part1(vents: &[Vent]) -> usize {
     let field = vents
         .iter()
         .filter(|v| v.is_aligned())
-        .fold(Field::new(), |mut f, v| {
+        .fold(Field::default(), |mut f, v| {
             f.add_vent(v);
             f
         });
@@ -16,7 +16,7 @@ fn solve_part1(vents: &[Vent]) -> usize {
 }
 
 fn solve_part2(vents: &[Vent]) -> usize {
-    let field = vents.iter().fold(Field::new(), |mut f, v| {
+    let field = vents.iter().fold(Field::default(), |mut f, v| {
         f.add_vent(v);
         f
     });

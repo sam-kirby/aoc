@@ -21,7 +21,7 @@ impl FromIterator<u64> for School {
         for age in iter {
             match age {
                 a @ 0..=8 => fish[a as usize] += 1,
-                a @ _ => panic!("Unexpected age: {} out of lifecylce", a),
+                a => panic!("Unexpected age: {} out of lifecylce", a),
             }
         }
 

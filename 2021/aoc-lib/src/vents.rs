@@ -68,17 +68,12 @@ impl From<ParseVentError> for ProblemInputError {
     }
 }
 
+#[derive(Default)]
 pub struct Field {
     hazard_counts: HashMap<Point, u8>,
 }
 
 impl Field {
-    pub fn new() -> Self {
-        Field {
-            hazard_counts: HashMap::new(),
-        }
-    }
-
     pub fn add_vent(
         &mut self,
         &Vent {
