@@ -17,7 +17,7 @@ pub enum ProblemInputError {
     InputOpen { path: String, source: io::Error },
     #[error("Error while reading the input")]
     Read { source: io::Error },
-    #[error("Failed to parse input file")]
+    #[error("Failed to parse input file: {source}")]
     Parse { source: anyhow::Error },
 }
 
